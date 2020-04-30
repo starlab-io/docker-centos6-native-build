@@ -55,6 +55,24 @@ RUN yum install --disablerepo=updates,extras -y yum-utils && \
     yum clean all && \
     rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
 
+# Build and install python 2.7 and pip
+RUN yum install -y --disablerepo=updates,extras epel-release && \
+    yum install -y --disablerepo=updates,extras zlib-dev openssl-devel \
+        sqlite-devel bzip2-devel xz-libs pigz wget &&\
+    yum clean all && rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
+RUN wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tar.xz && \
+    tar xfJ Python-2.7.18.tar.xz
+WORKDIR Python-2.7.18
+RUN ./configure --prefix=/usr/local && make && make altinstall && \
+    ln -s /usr/local/bin/python2.7 /usr/local/bin/python
+WORKDIR /
+RUN rm -rf /Python-2.7.18*
+
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    python get-pip.py && \
+    ln -s /usr/local/bin/pip /usr/bin/pip27 && \
+    rm -f get-pip.py
+
 VOLUME ["/source"]
 WORKDIR /source
 CMD ["/bin/bash"]
