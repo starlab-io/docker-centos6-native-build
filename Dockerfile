@@ -46,7 +46,8 @@ RUN yum install --disablerepo=updates,extras -y \
 
 # user space app build dependencies
 RUN yum install --disablerepo=updates,extras -y texinfo \
-        glibc-static.x86_64 glibc-static.i686 autogen && \
+        glibc-static.x86_64 glibc-static.i686 autogen \
+        glibc.i686 glibc-devel.i686 libgcc.i686 && \
     yum clean all && \
     rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
 
