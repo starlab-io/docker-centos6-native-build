@@ -29,12 +29,12 @@ RUN yum remove -y git && \
     rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
 
 # install IUS so we can get a recent version of git
-RUN yum install -y https://centos6.iuscommunity.org/ius-release.rpm && \
+RUN yum install -y https://repo.ius.io/ius-release-el6.rpm && \
     yum clean all && \
     rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
 
 # install modern git
-RUN yum install -y git2u && \
+RUN yum install -y git222 && \
     yum clean all && \
     rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
 
@@ -45,7 +45,7 @@ RUN yum install --disablerepo=updates,extras -y \
     rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
 
 # user space app build dependencies
-RUN yum install --disablerepo=updates,extras -y texinfo \
+RUN yum install --disablerepo=extras -y texinfo \
         glibc-static.x86_64 glibc-static.i686 autogen \
         glibc.i686 glibc-devel.i686 libgcc.i686 && \
     yum clean all && \
