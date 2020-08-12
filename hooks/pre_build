@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -eu
+set -o pipefail
+
+DOCKER_ARGS=$(env -i make -f Docker.mk print-DOCKER_ARGS)
+
+set -x
+
+echo "=> Building add_user_to_sudoers"
+docker run $DOCKER_ARGS -w $PWD/add_user_to_sudoers \
+    starlabio/docker-cargo-static:1 \
+    cargo build --release --target x86_64-unknown-linux-musl
