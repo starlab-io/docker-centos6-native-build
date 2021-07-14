@@ -1,25 +1,25 @@
-FROM centos:6.7
+FROM centos:6.10
 MAINTAINER Star Lab <support@starlab.io>
+
+# Need to update the baseurls as Centos6 is no longer supported
+RUN rm -rf /etc/yum.repos.d/CentOS-Base.repo
+ADD CentOS-Base.repo /etc/yum.repos.d/
+RUN yum clean all
+RUN yum update -y
 
 RUN mkdir /source
 
 # Install yum-plugin-ovl to work around issue with a bad
 # rpmdb checksum
-RUN yum install --disablerepo=updates,extras -y yum-plugin-ovl && \
-    yum clean all && \
-    rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
-
-# update certificates
-RUN yum -y update ca-certificates nss wget curl && \
-    yum clean all && \
-    rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
+# should already be installed
+RUN yum list installed | grep plugin-ovl
 
 # build dependencies
-RUN yum install --disablerepo=updates,extras -y kernel-devel bc \
+RUN yum install --skip-broken --disablerepo=updates,extras -y kernel-devel bc \
         openssl openssl-devel python-setuptools python-virtualenv \
         dracut-network nfs-utils check unzip rpm-build rpm-devel \
         gcc perl elfutils-libelf-devel sudo && \
-    yum groupinstall --disablerepo=updates,extras -y "Development Tools" && \
+    yum groupinstall --skip-broken --disablerepo=updates,extras -y "Development Tools" && \
     yum clean all && \
     rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
 
@@ -28,18 +28,14 @@ RUN yum remove -y git && \
     yum clean all && \
     rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
 
-# install IUS so we can get a recent version of git
-RUN yum install -y https://repo.ius.io/ius-release-el6.rpm && \
-    yum clean all && \
-    rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
+# install wandisco RPM so we can get a recent version of git
+RUN yum install -y http://opensource.wandisco.com/centos/6/git/x86_64/wandisco-git-release-6-1.noarch.rpm
 
 # install modern git
-RUN yum install -y git222 && \
-    yum clean all && \
-    rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
+RUN yum install -y git
 
 # more utilities
-RUN yum install --disablerepo=updates,extras -y \
+RUN yum install --skip-broken --disablerepo=updates,extras -y \
         vim-common attr python-devel freetype-devel xxd && \
     yum clean all && \
     rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
@@ -56,23 +52,31 @@ RUN yum install --disablerepo=updates,extras -y yum-utils && \
     yum clean all && \
     rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
 
-# Build and install python 2.7 and pip
-RUN yum install -y --disablerepo=updates,extras epel-release && \
-    yum install -y --disablerepo=updates,extras zlib-dev openssl-devel \
-        sqlite-devel bzip2-devel xz-libs pigz wget &&\
-    yum clean all && rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
-RUN wget -nv https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tar.xz && \
-    tar xfJ Python-2.7.18.tar.xz
+# Install tools to download and install python 2.7 and python3
+RUN yum install -y epel-release zlib-devel gcc gcc-c++ sqlite-devel \
+    zip2-devel xz-libs pigz wget bzip2-devel ncurses-devel sqlite-devel \
+    readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz \
+    xz-devel expat-devel glibc-devel
+
+# Download, build and install python 2.7 and pip
+RUN wget -nv https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tgz && \
+    tar xzf Python-2.7.18.tgz
 WORKDIR Python-2.7.18
 RUN ./configure --prefix=/usr/local && make && make altinstall && \
     ln -s /usr/local/bin/python2.7 /usr/local/bin/python
 WORKDIR /
 RUN rm -rf /Python-2.7.18*
+#RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+#    python get-pip.py && \
+#    ln -s /usr/local/bin/pip /usr/bin/pip27 && \
+#    rm -f get-pip.py
 
-RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
-    python get-pip.py && \
-    ln -s /usr/local/bin/pip /usr/bin/pip27 && \
-    rm -f get-pip.py
+# Download, build and install Python 3.6.3:
+RUN wget -nv https://python.org/ftp/python/3.6.3/Python-3.6.3.tar.xz && \
+    tar xf Python-3.6.3.tar.xz
+WORKDIR Python-3.6.3
+RUN ./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib"
+RUN make && make altinstall
 
 RUN sed -i '/^Defaults[ \t]*secure_path.*/{s%%Defaults secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin%;h};${x;/./{x;q0};x;q1}' /etc/sudoers
 

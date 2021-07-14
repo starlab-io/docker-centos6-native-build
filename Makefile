@@ -1,5 +1,5 @@
-VER := 5
-TAG := starlabio/docker-centos6-native-build:$(VER)
+VER := 6
+TAG := starlabio/centos6-native-build:$(VER)
 
 ADD_USER_TO_SUDOERS_BIN := add_user_to_sudoers/target/x86_64-unknown-linux-musl/release/add_user_to_sudoers
 
