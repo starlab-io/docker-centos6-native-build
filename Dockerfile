@@ -18,7 +18,7 @@ RUN yum -y update ca-certificates nss wget curl && \
 RUN yum install --disablerepo=updates,extras -y kernel-devel bc \
         openssl openssl-devel python-setuptools python-virtualenv \
         dracut-network nfs-utils check unzip rpm-build rpm-devel \
-        gcc perl elfutils-libelf-devel sudo && \
+        gcc perl elfutils-libelf-devel && \
     yum groupinstall --disablerepo=updates,extras -y "Development Tools" && \
     yum clean all && \
     rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
@@ -61,7 +61,7 @@ RUN yum install -y --disablerepo=updates,extras epel-release && \
     yum install -y --disablerepo=updates,extras zlib-dev openssl-devel \
         sqlite-devel bzip2-devel xz-libs pigz wget &&\
     yum clean all && rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
-RUN wget -nv https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tar.xz && \
+RUN wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tar.xz && \
     tar xfJ Python-2.7.18.tar.xz
 WORKDIR Python-2.7.18
 RUN ./configure --prefix=/usr/local && make && make altinstall && \
@@ -74,14 +74,6 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
     ln -s /usr/local/bin/pip /usr/bin/pip27 && \
     rm -f get-pip.py
 
-RUN sed -i '/^Defaults[ \t]*secure_path.*/{s%%Defaults secure_path = /sbin:/bin:/usr/sbin:/usr/bin:/usr/local/bin%;h};${x;/./{x;q0};x;q1}' /etc/sudoers
-
 VOLUME ["/source"]
 WORKDIR /source
-
-COPY add_user_to_sudoers/target/x86_64-unknown-linux-musl/release/add_user_to_sudoers /usr/local/bin/add_user_to_sudoers
-RUN chmod 4755 /usr/local/bin/add_user_to_sudoers
-
-COPY startup_script /usr/local/bin/startup_script
-ENTRYPOINT ["/usr/local/bin/startup_script"]
-CMD ["/bin/bash", "-l"]
+CMD ["/bin/bash"]
