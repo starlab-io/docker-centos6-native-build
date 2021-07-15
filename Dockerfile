@@ -71,10 +71,33 @@ WORKDIR /
 RUN rm -rf /Python-3.6.8*
 RUN /usr/local/bin/python3 -m pip install --upgrade pip
 
+# add our custom Star Lab binary helper to use sudo in the container
+# and add /usr/local/bin to the path for `sudo`
+ARG VER=1
+ARG ZIP_FILE=add-user-to-sudoers.zip
+RUN wget "https://github.com/starlab-io/add-user-to-sudoers/releases/download/${VER}/${ZIP_FILE}" && \
+    unzip "${ZIP_FILE}" && \
+    rm -f "${ZIP_FILE}" && \
+    mkdir -p /usr/local/bin && \
+    mv add_user_to_sudoers /usr/local/bin/ && \
+    mv startup_script /usr/local/bin/ && \
+    chmod 4755 /usr/local/bin/add_user_to_sudoers && \
+    chmod +x /usr/local/bin/startup_script && \
+    # Let regular users be able to use sudo
+    echo $'auth       sufficient    pam_permit.so\n\
+account    sufficient    pam_permit.so\n\
+session    sufficient    pam_permit.so\n\
+' > /etc/pam.d/sudo
+
+# add /usr/local/bin to sudo's $PATH and don't require tty for sudo commands
+RUN sed '/secure_path/ s/$/:\/usr\/local\/bin/' -i /etc/sudoers && \
+    sed '/requiretty/ s/^/#/'  -i /etc/sudoers
+
 # setup language environments
 ENV LC_ALL=en_US.utf-8
 ENV LANG=en_US.utf-8
 
 VOLUME ["/source"]
 WORKDIR /source
-CMD ["/bin/bash"]
+ENTRYPOINT ["/usr/local/bin/startup_script"]
+CMD ["/bin/bash", "-l"]
