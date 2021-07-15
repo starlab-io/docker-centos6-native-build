@@ -26,8 +26,11 @@ RUN yum install --disablerepo=updates,extras -y kernel-devel bc wget \
     yum clean all && \
     rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
 
-# remove git if already installed
+# remove regular git if already installed and install wandisco RPM so we can
+# get a recent version of git (> v2.0)
 RUN yum remove -y git && \
+    rpm -ivh http://opensource.wandisco.com/centos/6/git/x86_64/wandisco-git-release-6-1.noarch.rpm && \
+    yum install -y git && \
     yum clean all && \
     rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
 
