@@ -71,6 +71,10 @@ WORKDIR /
 RUN rm -rf /Python-3.6.8*
 RUN /usr/local/bin/python3 -m pip install --upgrade pip
 
+# setup language environments
+ENV LC_ALL=en_US.utf-8
+ENV LANG=en_US.utf-8
+
 VOLUME ["/source"]
 WORKDIR /source
 CMD ["/bin/bash"]
