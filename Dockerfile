@@ -48,6 +48,14 @@ RUN wget https://bootstrap.pypa.io/pip/2.7/get-pip.py && \
 # install common packages we use in CI environments
 RUN pip install numpy==1.16.0 xattr requests behave pyhamcrest matplotlib==2.2.3
 
+# install shellcheck for sanity checking bash scripts
+ARG SHELLCHECK_VER=v0.7.0
+RUN wget https://github.com/koalaman/shellcheck/releases/download/${SHELLCHECK_VER}/shellcheck-${SHELLCHECK_VER}.linux.x86_64.tar.xz && \
+    tar xf shellcheck-${SHELLCHECK_VER}.linux.x86_64.tar.xz && \
+    install shellcheck-${SHELLCHECK_VER}/shellcheck /usr/local/bin && \
+    rm -f shellcheck-${SHELLCHECK_VER}.linux.x86_64.tar.xz && \
+    rm -rf shellcheck-${SHELLCHECK_VER}
+
 VOLUME ["/source"]
 WORKDIR /source
 CMD ["/bin/bash"]
