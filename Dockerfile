@@ -21,7 +21,9 @@ RUN yum install --disablerepo=updates,extras -y kernel-devel bc wget \
         freetype-devel sudo strace ltrace man texinfo glibc.x86_64 libgcc.x86_64 \
         glibc-devel.x86_64 glibc-static.x86_64 glibc-static.i686 automake \
         glibc.i686 glibc-devel.i686 libgcc.i686 yum-utils \
-        zlib-devel sqlite-devel bzip2-devel xz-libs pigz && \
+        zlib-devel sqlite-devel bzip2-devel xz-libs pigz \
+        gcc-c++ zip2-devel readline-devel gdbm-devel db4-devel \
+        libpcap-devel xz expat-devel && \
     yum groupinstall --disablerepo=updates,extras -y "Development Tools" && \
     yum clean all && \
     rm -rf /var/cache/yum/* /tmp/* /var/tmp/*
@@ -58,6 +60,16 @@ RUN wget https://github.com/koalaman/shellcheck/releases/download/${SHELLCHECK_V
     install shellcheck-${SHELLCHECK_VER}/shellcheck /usr/local/bin && \
     rm -f shellcheck-${SHELLCHECK_VER}.linux.x86_64.tar.xz && \
     rm -rf shellcheck-${SHELLCHECK_VER}
+
+# Download, build and install Python 3.6.8 and upgrade pip3
+RUN wget https://python.org/ftp/python/3.6.8/Python-3.6.8.tar.xz && \
+    tar xfJ Python-3.6.8.tar.xz
+WORKDIR Python-3.6.8
+RUN ./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib" && \
+    make && make altinstall && ln -s /usr/local/bin/python3.6 /usr/local/bin/python3
+WORKDIR /
+RUN rm -rf /Python-3.6.8*
+RUN /usr/local/bin/python3 -m pip install --upgrade pip
 
 VOLUME ["/source"]
 WORKDIR /source
