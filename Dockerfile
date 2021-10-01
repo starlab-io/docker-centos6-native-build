@@ -1,11 +1,11 @@
-FROM centos:6.7
+FROM centos:6.10
 MAINTAINER Star Lab <support@starlab.io>
 
 RUN mkdir /source
 
 # modify CentOS repo URL following
 # End-of-Life deadline
-ARG DISTROVER=6.7
+ARG DISTROVER=6.10
 RUN sed -i "s/^mirrorlist.*$/baseurl=http:\/\/vault.centos.org\/${DISTROVER}\/os\/\$basearch\//g" /etc/yum.repos.d/CentOS-Base.repo
 
 # update certificates
