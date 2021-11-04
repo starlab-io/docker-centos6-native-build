@@ -62,7 +62,7 @@ RUN wget https://github.com/koalaman/shellcheck/releases/download/${SHELLCHECK_V
     rm -rf shellcheck-${SHELLCHECK_VER}
 
 # Download, build and install Python 3.6.8 and upgrade pip3
-RUN wget https://python.org/ftp/python/3.6.8/Python-3.6.8.tar.xz && \
+RUN wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tar.xz && \
     tar xfJ Python-3.6.8.tar.xz
 WORKDIR Python-3.6.8
 RUN ./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib" && \
