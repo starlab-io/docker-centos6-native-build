@@ -66,7 +66,8 @@ RUN wget https://www.python.org/ftp/python/3.6.8/Python-3.6.8.tar.xz && \
     tar xfJ Python-3.6.8.tar.xz
 WORKDIR Python-3.6.8
 RUN ./configure --prefix=/usr/local --enable-shared LDFLAGS="-Wl,-rpath /usr/local/lib" && \
-    make && make altinstall && ln -s /usr/local/bin/python3.6 /usr/local/bin/python3
+    make && make altinstall && ln -s /usr/local/bin/python3.6 /usr/local/bin/python3 && \
+    ln -s /usr/local/bin/python3.6 /usr/bin/python3
 WORKDIR /
 RUN rm -rf /Python-3.6.8*
 RUN /usr/local/bin/python3 -m pip install --upgrade pip
